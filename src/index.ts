@@ -1,78 +1,108 @@
-import type { User, Course, Submission } from "../types/index";
+import type { User, Item, Claim, ApiResponse, UserUpdate, UserPreview } from "../types/index";
+import { ClaimStatus } from "../types/index";
+
 // ===== PRIMITIVE TYPE ANNOTATIONS =====
-// Variables with explicit types
 const projectName: string = "itelect4-project";
 const currentYear: number = 2026;
 const isFullStack: boolean = true;
 const nothing: null = null;
 const notSet: undefined = undefined;
-// Function: typed parameters + typed return value
 function greet(name: string, year: number): string {
-return `Welcome to ${name} -- AY ${year}!`;
+  return `Welcome to ${name} -- AY ${year}!`;
 }
-// void: function that does NOT return a value
 function logMessage(message: string): void {
-console.log(message);
+  console.log(message);
 }
 logMessage(greet(projectName, currentYear));
 
-
 // ===== SPECIAL TYPES =====
-// any -- disables TypeScript type checking
-// [!] Avoid using this; it defeats the purpose of TypeScript
 let anything: any = "hello";
-anything = 42; // No error
-anything = true; // No error
-// unknown -- the safer version of any
-// You MUST check the type before using it
+anything = 42;
+anything = true;
 let userInput: unknown = "test";
 if (typeof userInput === "string") {
-console.log(userInput.toUpperCase()); // OK -- TypeScript knows it's a string here
+  console.log(userInput.toUpperCase());
 }
-// never -- a function that NEVER returns
-// Used when a function always throws an error or loops forever
 function throwError(message: string): never {
-throw new Error(message);
+  throw new Error(message);
 }
-
 
 // ===== USING INTERFACES =====
 const student: User = {
-id: 1,
-name: "Juan dela Cruz",
-email: "juan@example.com",
-role: "student",
-isActive: true,
+  id: 1,
+  name: "Juan dela Cruz",
+  email: "juan@example.com",
+  role: "student",
+  isActive: true,
 };
-const course: Course = {
-code: "ITELECT4",
-title: "IT Elective 4",
-units: 3,
-semester: "1st Semester 2026-2027",
+const item: Item = {
+  id: 1,
+  title: "Black Backpack",
+  description: "Left near the library entrance",
+  location: "Main Library",
+  datePosted: new Date(),
+  type: "found",
 };
 console.log(student);
-console.log(course);
-
+console.log(item);
 
 // ===== TYPE NARROWING =====
-import type { StringOrNumber } from "../types/index";
-// Narrowing with typeof
-// Without the if-check, TypeScript would error:
-// Property 'toUpperCase' does not exist on type 'number'
-function processInput(input: StringOrNumber): string {
-if (typeof input === "string") {
-return input.toUpperCase(); // TypeScript knows: input is string here
+function processInput(input: string | number): string {
+  if (typeof input === "string") {
+    return input.toUpperCase();
+  }
+  return input.toFixed(2);
 }
-return input.toFixed(2); // TypeScript knows: input is number here
-}
-// Narrowing with instanceof
-// Used with class instances like Date, Error, etc.
 function formatDate(value: string | Date): string {
-if (value instanceof Date) {
-return value.toLocaleDateString(); // TypeScript knows: it's a Date
+  if (value instanceof Date) {
+    return value.toLocaleDateString();
+  }
+  return value;
 }
-return value; // TypeScript knows: it's a string
+console.log(processInput("hello"));
+console.log(processInput(3.14159));
+console.log(formatDate(new Date()));
+
+// ===== GENERIC FUNCTIONS =====
+function getFirst<T>(items: T[]): T | undefined {
+  return items[0];
 }
-console.log(processInput("hello")); // HELLO
-console.log(processInput(3.14159)); // 3.14
-console.log(formatDate(new Date())); // e.g. 7/4/2026
+function getById<T extends { id: number }>(items: T[], id: number): T | undefined {
+  return items.find((entry) => entry.id === id);
+}
+const firstItem = getFirst<Item>([item]);
+const foundItem = getById<Item>([item], 1);
+console.log(firstItem?.title);
+console.log(foundItem?.location);
+
+// ===== GENERIC INTERFACE USAGE =====
+const userResponse: ApiResponse<User> = {
+  success: true,
+  data: student,
+};
+const itemResponse: ApiResponse<Item[]> = {
+  success: true,
+  data: [item],
+};
+console.log(userResponse.data.name);
+
+// ===== USING UTILITY TYPES =====
+const patch: UserUpdate = { name: "Juan D. Cruz" };
+const preview: UserPreview = { id: 1, name: "Juan dela Cruz", role: "student" };
+console.log(patch);
+console.log(preview);
+
+// ===== USING ENUMS =====
+let status: ClaimStatus = ClaimStatus.Pending;
+console.log(ClaimStatus[status]);
+status = ClaimStatus.UnderReview;
+console.log(status === ClaimStatus.UnderReview);
+
+const claim: Claim = {
+  id: 1,
+  itemId: item.id,
+  claimantId: student.id,
+  status: ClaimStatus.Pending,
+  submittedAt: new Date(),
+};
+console.log(claim);
