@@ -1,54 +1,43 @@
-import { useState, useEffect, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router";
-import type { Item } from "../types/index";
+import type { ApiItem } from "../types/index";
 import ItemCard from "../components/ItemCard";
 import usePrevious from "../hooks/usePrevious";
-import { allItems } from "../data/mockData";
+import useUiStore from "../store/uiStore";
+import { fetchItems } from "../api/client";
 
 function ItemsPage() {
-  const [items, setItems] = useState<Item[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isError, setIsError] = useState<boolean>(false);
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const { data, isPending, isError, error } = useQuery<ApiItem[]>({
+    queryKey: ["items"],
+    queryFn: fetchItems,
+  });
+
+  const searchTerm = useUiStore((state) => state.searchTerm);
+  const setSearchTerm = useUiStore((state) => state.setSearchTerm);
   const previousSearch = usePrevious(searchTerm);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setItems(allItems);
-      setIsLoading(false);
-    }, 500);
-  }, []);
-
-  const handleSearchChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ): void => setSearchTerm(e.target.value);
-
-  const filteredItems = items.filter((i) =>
-    i.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    i.location.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  if (isLoading) {
+  if (isPending) {
     return <div className="animate-pulse p-6">Loading items...</div>;
   }
   if (isError) {
     return (
       <div className="rounded-lg bg-red-50 p-4 text-red-700">
-        Could not load items.
+        {error.message} -- is json-server running on port 3001?
       </div>
     );
   }
 
+  const filteredItems = data.filter((i) =>
+    i.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    i.location.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div>
       <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">Items</h2>
-      <button onClick={() => setIsError(true)}
-        className="mb-2 rounded bg-red-100 px-2 py-1 text-xs text-red-700">
-        Simulate Error
-      </button>
-      <input ref={searchInputRef} value={searchTerm}
-        onChange={handleSearchChange} placeholder="Search items..."
+      <input value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        placeholder="Search items..."
         className="w-full rounded border border-gray-300 p-2" />
       {previousSearch !== undefined && previousSearch !== searchTerm && (
         <p className="mt-1 text-sm text-gray-500">
