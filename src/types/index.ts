@@ -42,3 +42,16 @@ export enum ClaimStatus {
   Approved,
   Rejected,
 }
+
+// ===== API TYPES (Session 7) =====
+export type ApiItem = Omit<Item, "id" | "datePosted"> & {
+  id: string;
+  datePosted: string;
+};
+export type NewItem = Omit<ApiItem, "id">;
+
+export type ApiClaim = Omit<Claim, "id" | "submittedAt"> & {
+  id: string;
+  submittedAt: string;
+};
+export type NewClaim = Omit<ApiClaim, "id">;
