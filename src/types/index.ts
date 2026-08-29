@@ -19,6 +19,7 @@ export interface Claim {
   id: number;
   itemId: number;
   claimantId: number;
+  contactEmail: string;
   status: ClaimStatus;
   submittedAt: Date;
 }
