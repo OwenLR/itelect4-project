@@ -24,13 +24,12 @@ function ClaimsPage() {
     defaultValues: { itemId: "", contactEmail: "" },
   });
 
-  // Same queryKey as ItemsPage, so this dropdown comes out of the cache.
   const items = useQuery<ApiItem[]>({
     queryKey: ["items"],
     queryFn: fetchItems,
   });
 
-  const { data, isPending, isError } = useQuery<ApiClaim[]>({
+  const { data, isPending, isError, error } = useQuery<ApiClaim[]>({
     queryKey: ["claims"],
     queryFn: fetchClaims,
   });
@@ -43,15 +42,10 @@ function ClaimsPage() {
     },
   });
 
-  // handleSubmit only calls this after the schema passes.
+  // The form and the API agree on exactly two fields, so there is nothing
+  // left to invent: no claimantId, no status, no submittedAt.
   const onSubmit = (values: ClaimFormValues): void => {
-    addClaim.mutate({
-      itemId: Number(values.itemId),
-      claimantId: 1,
-      contactEmail: values.contactEmail,
-      status: 0,
-      submittedAt: new Date().toISOString(),
-    });
+    addClaim.mutate(values);
   };
 
   if (isPending) {
@@ -60,7 +54,7 @@ function ClaimsPage() {
   if (isError) {
     return (
       <div className="rounded-lg bg-red-50 p-4 text-red-700">
-        Could not load claims.
+        {error.message}
       </div>
     );
   }

@@ -1,10 +1,9 @@
 // ===== INTERFACES =====
-// An interface defines the SHAPE of an object -- what fields it must have.
 export interface User {
   id: number;
   name: string;
   email: string;
-  role: "student" | "security_admin"; // only these values
+  role: "student" | "security_admin";
   isActive: boolean;
 }
 export interface Item {
@@ -13,30 +12,29 @@ export interface Item {
   description: string;
   location: string;
   datePosted: Date;
-  type: "lost" | "found"; // only these values
+  type: "lost" | "found";
 }
 export interface Claim {
   id: number;
   itemId: number;
   claimantId: number;
-  contactEmail: string;
+  contactEmail: string; // added Session 8
   status: ClaimStatus;
   submittedAt: Date;
 }
+
 // ===== GENERIC INTERFACE =====
-// ApiResponse<T> can wrap ANY data type -- every future GT reuses this
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
   message?: string;
 }
+
 // ===== UTILITY TYPES =====
-// Partial<T> -- every field becomes optional
 export type UserUpdate = Partial<User>;
-// Pick<T, K> -- keep ONLY the listed fields
 export type UserPreview = Pick<User, "id" | "name" | "role">;
+
 // ===== ENUM =====
-// Regular enum -- exists at runtime; can be looped over or reverse-mapped
 export enum ClaimStatus {
   Pending,
   UnderReview,
@@ -44,15 +42,35 @@ export enum ClaimStatus {
   Rejected,
 }
 
-// ===== API TYPES (Session 7) =====
+// ===== API TYPES =====
 export type ApiItem = Omit<Item, "id" | "datePosted"> & {
-  id: string;
-  datePosted: string;
+  id: string;           // 24 hex characters, from MongoDB's _id
+  datePosted: string;   // an ISO string, never a Date object
 };
 export type NewItem = Omit<ApiItem, "id">;
 
-export type ApiClaim = Omit<Claim, "id" | "submittedAt"> & {
+// SESSION 10: claimantId and itemId are 24-character strings on the wire,
+// and the server fills in claimantId and submittedAt itself.
+export type ApiClaim = Omit<
+  Claim,
+  "id" | "claimantId" | "itemId" | "submittedAt"
+> & {
   id: string;
+  claimantId: string;
+  itemId: string;
   submittedAt: string;
 };
-export type NewClaim = Omit<ApiClaim, "id">;
+
+// What we SEND when creating one -- the two fields the form has.
+export type NewClaim = Pick<ApiClaim, "itemId" | "contactEmail">;
+
+// What /api/auth/register sends back, and what sits inside the login reply.
+export type ApiUser = Omit<User, "id"> & {
+  id: string;
+};
+
+// What /api/auth/login sends back.
+export interface AuthReply {
+  token: string;
+  user: ApiUser;
+}
