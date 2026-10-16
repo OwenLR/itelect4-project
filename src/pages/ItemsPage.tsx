@@ -4,7 +4,7 @@ import type { ApiItem } from "../types/index";
 import ItemCard from "../components/ItemCard";
 import usePrevious from "../hooks/usePrevious";
 import useUiStore from "../store/uiStore";
-import { fetchItems } from "../api/client";
+import { fetchItems, API_URL } from "../api/client";
 
 function ItemsPage() {
   const { data, isPending, isError, error } = useQuery<ApiItem[]>({
@@ -22,7 +22,7 @@ function ItemsPage() {
   if (isError) {
     return (
       <div className="rounded-lg bg-red-50 p-4 text-red-700">
-        {error.message} -- is json-server running on port 3001?
+        {error.message} -- tried {API_URL}/api/items
       </div>
     );
   }

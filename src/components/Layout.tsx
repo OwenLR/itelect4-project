@@ -26,7 +26,10 @@ function Layout() {
           <NavLink to="/items" className={linkClass}>Items</NavLink>
           <NavLink to="/claims" className={linkClass}>Claims</NavLink>
           {userName === null ? (
-            <NavLink to="/login" className={linkClass}>Login</NavLink>
+            <>
+              <NavLink to="/login" className={linkClass}>Login</NavLink>
+              <NavLink to="/register" className={linkClass}>Register</NavLink>
+            </>
           ) : (
             <button onClick={logout} className="rounded px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300">
               Logout ({userName})
