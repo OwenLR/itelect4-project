@@ -1,3 +1,7 @@
+# Vercel Live Link Frontend = https://itelect4-project-omega.vercel.app/
+# Vercel Live Link Backend = https://itelect4-backend-beta.vercel.app
+
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
