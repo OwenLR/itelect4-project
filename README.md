@@ -1,79 +1,51 @@
-# Vercel Live Link Frontend = https://itelect4-project-omega.vercel.app/
-# Vercel Live Link Backend = https://itelect4-backend-beta.vercel.app
+# itelect4-project
 
+[![CI](https://github.com/OwenLR/itelect4-project/actions/workflows/ci.yml/badge.svg)](https://github.com/OwenLR/itelect4-project/actions/workflows/ci.yml)
 
-# React + TypeScript + Vite
+The Campus Lost & Found Tracker: React, TypeScript, Vite, Tailwind, shadcn,
+TanStack Query and Zustand.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+- **Live site:** https://itelect4-project-omega.vercel.app
+- **API repo:** https://github.com/OwenLR/itelect4-backend
 
-Currently, two official plugins are available:
+## What it does
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Browse lost and found items, register and log in, submit and track claims on
+items, and get AI feedback on how matchable an item description is.
 
-## React Compiler
+## Architecture
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```mermaid
+flowchart LR
+  user["Browser"]
+  fe["itelect4-project<br/>React + Vite on Vercel"]
+  be["itelect4-backend<br/>Express on Vercel"]
+  db[("MongoDB Atlas")]
+  ai["Gemini API"]
+  user --> fe
+  fe -- "fetch + Bearer token" --> be
+  be -- "Mongoose" --> db
+  be -- "GEMINI_API_KEY" --> ai
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Run it locally
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. `npm install`
+2. `copy .env.example .env` and set `VITE_API_URL=http://localhost:4000`
+   (run `itelect4-backend` first).
+3. `npm run dev` (http://localhost:5173).
+4. `npm test` runs the Vitest tests.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## AI-use disclosure
 
-```
+Used Claude (Anthropic), via the claude.ai chat interface, as a coding
+assistant. No other AI tool is used.
+
+Where Claude assisted
+- Adapting the class-demo patterns to this Lost and Found app (User / Item / Claim) and
+  flagging where a pattern did not fit.
+- Troubleshooting setup and deployment errors (tsconfig, PowerShell,
+  Vercel, CORS, Atlas).
+
+
+
